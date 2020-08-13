@@ -1,20 +1,25 @@
 Shopping List
 
 apples
-bananas
-yogurt
-milk
+6 bananas
+vanilla yogurt
+2% milk
 bread
 cereal
 eggs
 bacon
 orange juice
 grapes
+pears
 lemons
 lettuce
 rice
 soup
+coffee
 ice cream
 sugar
+tomatoes
 flour
+beer
+wheat bread
 
