@@ -1,0 +1,678 @@
+1.1 Force push to a remote
+
+- Local version is better than the remote version
+
+- Remote version went wrong and needs repair
+
+- Versions have diverged and merging is undersirable
+
+---> git push -f/--force
+
+Use with extreme caution!
+
+Why? can anger your colleagues, disrupive for them to use the remote branch,
+their commit dissapear
+
+1.2 Identify Merged Branches
+
+- List branches that have been merged into a branch
+
+- Useful for knowing what features have been incorporated
+
+- Useful for cleanup after merging many features
+
+git branch --merged -> mostra os branchs LOCAL que fizeram merge na branch atual
+git branch --no-merged -> mostra os branchs que NÃO fizeram merge na branch atual
+git branch -r --merged -> mostra os branchs REMOTO que fizeram merge na branch atual 
+
+1.3 Delete local and remote branches
+
+Para isso é preciso estar em outro branch que não seja o que
+quer deletar.
+
+git branch -d *nome-branch* -> deleta o branch especificado
+
+Obs: '-D' força o delete
+
+Para deletar branch remoto usa:
+
+git push -d origin *nome-branch*
+
+git branch -r -> lista branchs remotos
+
+1.4 Prune Stale Branches
+
+
+- Delete all stale remote tracking branches, NOT remote branches
+
+- Stale Branch: remote tracking branch that no longer tracks because
+the actual remote branch has been deleted
+
+Remote Branchs: 
+
+- Branch remote(bugfix)
+
+- Local snapshot of the remote(origin/bugfix) -> remote tracking branch, allow to work
+offline although we can't push or pull updates
+
+- Local branch, tracking the remote (bugfix)
+
+Deleting a remote prunes the remote tracking branch automatically
+
+When to delete manual? When collaborators deletes the remote branch
+ 
+git remote prune origin -> deleta o branch remoto rastreado
+
+git remote prune origin --dry-run -> mostra o que aconteceria se deletasse
+
+git fetch -p/--prune -> vai deletar o tracking branch e fazer um fetch
+
+Atenção: tem a opção de configurar o prune automatico no fetch, PORÉM É PERIGOSO PORQUE 
+VAI DELETAR AUTOMATICAMENTE MUDANÇAS QUE TALVEZ NÃO ESTEJAM NO LOCAL!
+
+git config --global fetch.prune true
+
+git gc -> limpa tudo o que não está sendo usado no repo
+
+***************************************************************************************
+
+2.1 Create TAGS
+
+- Tags allow marking points in history as important
+
+- A named reference to a commit
+
+- Most often used to mark releases(v1.0, v1.1, v2.0)
+
+- Can mark key features or changes(ecommerce, redesign)
+
+- Can mark points for team discussion(bug, issue136)
+
+Types of tag: 
+    -lighweight: git tag *nome-tag* *id-commit*
+    - annotated: git tag -a *nome-tag* -m "mensagem" *id-commit* -> É a mais usada porque 
+permitir colocar mensagem
+
+obs: '-a' diz que é annotated tag
+
+2.2 List tags
+
+git tag -l/--list -> lista todas as tags
+
+git tag -l "v2*" -> lista todas as tags que começam com v2
+
+git tag -l -n -> lista todas as tags e anotações delas
+
+git show *tagname* -> mostra a tag com anotação
+
+git show/diff *tag1*...*tag2* -> mostra tags de um período 
+
+2.3 Delete tags 
+
+git tag -d/--delete *tagname* -> deleta a tag 
+
+2.4 Push tags to a remote
+
+- Tags are just local
+
+- 'git push' does note transfer tags, you have to explicity.But git fetch grab all shared tags
+
+git push *branchname* *tagname* -> envia a tag para o remote
+
+git push origin --tags -> envia todas as tags para o remote
+
+git push -d *branchname* *tagname* -> deleta a tag do remote
+
+2.5 Check out tags
+
+- Tags ≠ branch
+
+git checkout *tagname* -> faz o HEADSTATE voltar para a partir daquele commit,
+o certo é criar um branch para isso antes, e nela voltar
+
+git checkout -b *branchname* -> cria uma branch e vai para ela
+
+***************************************************************************************
+
+3.1 Interactive mode
+
+- Stage changes interactively
+
+- Allows staging portions of changed files
+
+- Helps to make smaller, focused commits
+
+- Feature of many Git GUI tools
+
+git add -i/intactive -> entra no modo interativo do github
+
+3.2 Patch Mode
+
+- Allow staging portions of a changed file
+
+-'Hunk': an area where 2 files differ
+
+- Hunks can be staged, skipped, or split into smaller hunks
+
+git add -i -> interactive mode 
+            OR 
+git add -p/--patch
+git stash -p
+git reset -p
+git checkout -p
+git commit -p
+
+3.3 Split a hunk
+
+- Hunk can contain multiples changes, can be splited if there is one or more
+unchanged lines between changes
+
+3.4 Edit a hunk
+
+- Can edit manually, used when cannot split automatically
+
+***************************************************************************************
+
+4.1 Cherry-picking commits
+
+- Apply the changes from 1 or + existing commits
+
+- Each existing commit is recorded as new commit 
+on the current branch
+
+- Conceptually similar to copy-paste
+
+- New commits have different SHA's
+
+- Cannot pick a merge commit
+
+- Can result in conflicts
+
+git cherry-pick *sha id* -> copia o commit
+
+git cherry-pick *shaidinitial*...*shaidfinal* -> copia todos os comits deste periodo
+
+obs: -e/--edit são para editar a mensagem
+
+4.2 Resolve cerry-picking conflcts
+
+4.3 Create diff patches
+
+- Share changes via files
+- Useful when changes are not ready for a public branch, when collaborators do not share a remote
+- Discussion, review, approval process
+
+git diff *shaid-x* *shaid-y* > ~/*Desktop,Documents...*/*name.diff* -> cria um arquivo 
+com as diff dos arquivos x até o y.
+
+obs: git log --oneline -> tras o log de 1 linha dos commits
+
+4.4 Apply diff patches
+
+- Apply changes in a diff patch file to the working directory
+
+- Makes changes, but not commits
+
+- No commit history transferred
+
+git apply *name.diff* -> aplica as diferenças do arquivo
+
+4.5 Create formatted patches
+
+- Export each commit in Unix mailbox format
+
+- Useful for email distribution of changes
+
+- Includes commit messages
+
+- One commit per file by default
+
+git format-patch *sha1*..*sha2* -> exporta todos os commits do periodo
+
+git format-patch master -> exporta todos os commits da branch atual
+
+git format-patch -1 *sha* -> exporta 1 commit
+
+git format-patch master -o feature -> cria um diretorio com os arquivos
+
+git format-patch *sha1*..*sha2* --stdout > feature.patch -> exporta o conteudo do arquivo para um novo arquivo
+
+4.6 Apply formated patches
+
+
+- Extract author, commit message, and changes from a mailbox message and apply them
+to the current branch
+
+- Similiar to cherry picking: same changes, differente SHAs
+ 
+- Commit history is transferred
+
+git am *folder*/*file.patch* -> aplica em único arquivo
+
+git am *folder*/*.patch -> aplica em todos os arquivos da pasta
+
+obs: git apply deixa mudanças para comentar, mas git am não!
+
+Se você quiser apenas passar as mudanças do código sem os commit -> Apply diff 
+Se você quiser passar as mudanças e commits do código -> Apply formated patch
+
+***************************************************************************************
+
+5.1 Rebasing commits
+
+- Take commits from a branch and replay them at the end 
+of another branch
+
+- Useful to integrate recent commits without merging 
+
+- Maintains a cleaner, more linear project history
+
+- Ensures topic branch commits apply cleanly 
+
+obs: rebasing move os commits para o final da branch
+sem precisar de merge. 
+
+git rebase master -> move o branch atual para o final da master
+
+git rebase master *branchname* -> move o branch para a master
+
+
+5.2 Perform a rebase
+
+
+git log --graph --all --decorate --oneline -> retorna a linha de progresso
+da branch
+
+git merge-base master *branchname* -> retorna o sha do commit do branch que diverge da master
+
+5.3 Merging vs rebasing
+
+
+- Both are used to incorporate changes between branches, but 
+their meanig are different
+
+
+- Merging: nondestructive, complete record of what happend and when,
+easy to undo, BUT logs can become cluettered,non-linear.
+
+
+- Rebasing: no addition commit, destructive: SHA changes and commits 
+are rewritten, no longer a complete record of what and when happend,
+tricky, hard to undo, BUT logs are cleaner, more linear.
+
+
+***THE GOLDEN RULE OF REBASING***
+
+Thou shalt not rebase a public branch!
+
+- Rebase abandon existing, shared commits and create new ones,
+collaboratours would see the project history vanish and to get
+them in sync again can be a nightmare.
+
+Rebase should be use only in local/private branch, branchs that others 
+don't use.
+
+
+How to choose? 
+
+- Use merge to allow commits to stand out or to be clearly grouped,
+to bring large topic branches back into master with the history
+and most of all: WHEN THE TOPIC BRANCH IS PUBLIC AND IS BEING USED BY OTHERS
+(GOLDEN RULE OF REBASING)
+
+- Use rebase to add minor commits in master to a topica branch,
+to move commits from one branch to another.
+
+5.4 Resolve rebase conflicts
+
+
+git rebase --continue/--skip -> retorna o rebase depois de resolver o conflito
+           --abort -> aborta o rebase
+
+
+5.5 Rebase onto other branches
+
+
+git rebase --onto newbase upstream branch -> muda a base do branch,
+neste caso: branch é o que estamos movendo, upstream é o branch de comparação
+que usamos e newbase é para onde estamos movendo ele.
+
+5.6 Undo a rebase
+
+- Can undo simple rebases, is destructive, changes SHA, messages, sets
+and more, complex rebases may result in lose data.
+
+git reset --hard ORIG_HEAD
+
+or git rebase --onto *SHA* *master* *new feature* -> move os commits de lugar
+
+5.6 Interactive rebasing
+
+- Chance to modify commits as they are being replayed
+
+- Opens the git-rebase-todo file for editing
+
+- Can reorder or skip commits 
+
+- Can edit commit contents
+
+git rebase -i master new_feature
+
+- It's interesting to use when you want to commit without moving them
+
+git rebase -i HEAD~n -> pega os último n commits e faz o rebase no exato
+lugar, dando a oportunidade de editar o commit. Neste caso pode editar o commit 
+histórico, lembrando que isso apaga o commit que existia.
+
+PS: remember that you just should do this if your commits are local
+and you did not shared with others.
+
+5.7 Squash commits
+
+
+- Fold two or more commits into one
+
+- squash: combine change sets, concatenate messages
+
+- fixup: combine change sets,discard this message
+
+- Uses first author in the commit series
+ 
+
+permite juntar os commits, tirar redundancia, organizar.
+
+5.8 Pull rebase
+
+- Fetch from remote, then rebase instead of merging
+
+- Keeps history cleaner by reducing merge commits
+
+- Only use on LOCAL COMMITS NOT SHARED TO A REMOTE!
+
+git pull -r/--rebase -> faz o pull do remoto e rebase
+                    =preserve -> preserva os merge commits locais
+                    =interactive -> entra no modo interativo
+
+***************************************************************************************
+
+6.1 Log options
+
+- Log is the primaty interface to git, has many options,
+sorting,filtering, output formating, git help log
+
+
+git log -p/patch -> lista os logs com as mudanças dos commits
+
+git log -L 100,150:filename.txt -> lista um número x de mudanças de linha
+de um arquivo específico
+
+
+6.2 Blame -> debuggin tool
+
+- Browse annotated file
+
+- Determine who changed which lines in a file and why
+
+- Useful for probing the history behind a file's contents
+
+- Useful for identifying which commit introduced a bug
+
+git blame filename.txt -> retorna detalhes do commit
+          -w -> ignora espaços em brancos
+
+git blame -L 100,150 filename.txt -> lista um número x de mudanças de linha
+de um arquivo específico
+
+6.3 Bisect -> debugg tool
+
+
+- Find the commit that introduced a bug or regression, mark last good revision
+and first bad revision, resets code to mid point, mark as good or bad,
+repeat
+
+git bisect start -> começa a sessão do bisect
+
+git bisect good/bad *treeish*
+
+git bisect reset -> said da sessão do bisect
+
+obs: treish pode ser branch name,SHA,tag ou nada
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
